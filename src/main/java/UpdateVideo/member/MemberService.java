@@ -1,11 +1,18 @@
 package UpdateVideo.member;
 
+import UpdateVideo.member.dto.MemberLoginDto;
 import UpdateVideo.member.dto.MemberRegisterDto;
+import javassist.Loader;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -20,5 +27,31 @@ public class MemberService {
         Member member = new Member(memberRegisterDto.getName(), memberRegisterDto.getEmail(), password);
 
         memberRepository.save(member);
+    }
+
+    public void login(Member member) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                new UserMember(member),
+                member.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(token);
+    }
+
+    public void memberLogin(MemberLoginDto memberLoginDto, Map map) {
+        String password = passwordEncoder.encode(memberLoginDto.getPassword());
+        //Member member = memberRepository.findByEmailAndPassword(memberLoginDto.getEmail(), password);
+        Member member = memberRepository.findByEmail(memberLoginDto.getEmail());
+        if(member == null) {
+            map.put("success", false);
+            return;
+        }
+
+        System.out.println("!!!!!!!" + member.getPassword());
+        System.out.println("!!!!!!!" + password);
+
+        map.put("success", true);
+        login(member);
     }
 }
