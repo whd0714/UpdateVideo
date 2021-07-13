@@ -2,7 +2,6 @@ package UpdateVideo.member;
 
 import UpdateVideo.member.dto.MemberLoginDto;
 import UpdateVideo.member.dto.MemberRegisterDto;
-import javassist.Loader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

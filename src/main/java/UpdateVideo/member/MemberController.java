@@ -35,15 +35,12 @@ public class MemberController {
 
     @GetMapping("/api/auth")
     public Result memberAuth(@CurrentUser Member member) {
-        System.out.println("/api/auth");
-        System.out.println("!!!" + member);
         if(member == null) {
             return new Result();
         }
 
         MemberAuthDto memberAuthDto = new MemberAuthDto(member);
         Result result = new Result(memberAuthDto);
-        System.out.println("!!!" + result);
         return result;
     }
 
