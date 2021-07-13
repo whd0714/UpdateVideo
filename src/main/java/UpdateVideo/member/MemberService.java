@@ -40,18 +40,20 @@ public class MemberService {
     }
 
     public void memberLogin(MemberLoginDto memberLoginDto, Map map) {
-        String password = passwordEncoder.encode(memberLoginDto.getPassword());
-        //Member member = memberRepository.findByEmailAndPassword(memberLoginDto.getEmail(), password);
         Member member = memberRepository.findByEmail(memberLoginDto.getEmail());
         if(member == null) {
             map.put("success", false);
             return;
         }
 
-        System.out.println("!!!!!!!" + member.getPassword());
-        System.out.println("!!!!!!!" + password);
-
-        map.put("success", true);
-        login(member);
+        if(passwordEncoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
+            System.out.println("비밀번호 일치");
+            map.put("success", true);
+            login(member);
+        } else {
+            System.out.println("비밀번호 불일치");
+            map.put("success", false);
+            return;
+        }
     }
 }
