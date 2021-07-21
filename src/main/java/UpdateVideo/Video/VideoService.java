@@ -1,7 +1,13 @@
 package UpdateVideo.Video;
 
 import UpdateVideo.Video.dto.UploadThumbnailDto;
+import UpdateVideo.Video.dto.UploadVideoDto;
 import UpdateVideo.Video.dto.UploadVideoToServerDto;
+import UpdateVideo.channel.Channel;
+import UpdateVideo.channel.ChannelRepository;
+import UpdateVideo.member.Member;
+import UpdateVideo.member.MemberRepository;
+import UpdateVideo.member.dto.MemberRegisterDto;
 import lombok.RequiredArgsConstructor;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
@@ -16,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -25,6 +32,8 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private static final String VIDEO_PATH = "F:\\UpdateVideo\\src\\main\\resources\\static\\upload\\video\\";
     private static final String THUMBNAIL_PATH = "F:\\UpdateVideo\\src\\main\\resources\\static\\upload\\thumbnail\\";
+    private final MemberRepository memberRepository;
+    private final ChannelRepository channelRepository;
 
     public void uploadServer(UploadVideoToServerDto uploadVideoToServerDto, Map map) {
         String filename = uploadVideoToServerDto.getFile().getOriginalFilename();
@@ -67,11 +76,34 @@ public class VideoService {
         String filePath = "upload/thumbnail/" + filename +".jpg";
         String videoPath = "upload/video/" + filename;
 
+        map.put("filename", filename);
         map.put("thumbnailPath", filePath);
         map.put("filepath", videoPath);
         map.put("duration", duration);
         map.put("success", true);
 
 
+    }
+
+    public void uploadVideo(UploadVideoDto uploadVideoDto) {
+        Optional<Member> memberById = memberRepository.findById(uploadVideoDto.getMemberId());
+
+        Video video = new Video(uploadVideoDto.getFilename(), uploadVideoDto.getFilepath(), uploadVideoDto.getThumbnailPath(),
+                uploadVideoDto.getTitle(), uploadVideoDto.getDescription(), uploadVideoDto.getCategory(),
+                uploadVideoDto.getAccess(), uploadVideoDto.getDuration());
+        videoRepository.save(video);
+
+        memberById.ifPresent(m->{
+            Channel channel = m.getChannel();
+            if(channel != null) {
+                video.changeChannel(channel);
+            } else {
+                Channel channel2 = new Channel();
+                video.changeChannel(channel2);
+                channel2.changeMember(m);
+                channel2.firstName();
+                channelRepository.save(channel2);
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package UpdateVideo.Video;
 
 import UpdateVideo.Video.dto.UploadThumbnailDto;
+import UpdateVideo.Video.dto.UploadVideoDto;
 import UpdateVideo.Video.dto.UploadVideoToServerDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,7 +22,7 @@ public class VideoController {
     private final VideoRepository videoRepository;
 
     @PostMapping("/api/upload/server/video")
-    private Map uploadVideoToServer(@ModelAttribute UploadVideoToServerDto uploadVideoToServerDto) {
+    public Map uploadVideoToServer(@ModelAttribute UploadVideoToServerDto uploadVideoToServerDto) {
 
         Map map = new HashMap<String, Object>();
         videoService.uploadServer(uploadVideoToServerDto, map);
@@ -30,10 +31,21 @@ public class VideoController {
     }
 
     @PostMapping("/api/upload/server/thumbnail")
-    private Map uploadVideoThumbnail(@RequestBody UploadThumbnailDto uploadThumbnailDto) throws IOException {
+    public Map uploadVideoThumbnail(@RequestBody UploadThumbnailDto uploadThumbnailDto) throws IOException {
         Map map = new HashMap<String, Object>();
 
         videoService.uploadThumbnail(uploadThumbnailDto, map);
+
+        return map;
+    }
+
+    @PostMapping("/api/video/upload")
+    public Map uploadVideo(@RequestBody UploadVideoDto uploadVideoDto) {
+        Map map = new HashMap<String, Object>();
+
+        videoService.uploadVideo(uploadVideoDto);
+
+        map.put("success", true);
 
         return map;
     }
